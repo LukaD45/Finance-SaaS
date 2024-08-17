@@ -1,0 +1,20 @@
+{
+  "version": "5",
+  "dialect": "pg",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1723751805851,
+      "tag": "0000_flippant_whiplash",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1723905556688,
+      "tag": "0001_puzzling_tusk",
+      "breakpoints": true
+    }
+  ]
+}
