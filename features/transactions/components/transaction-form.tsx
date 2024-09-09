@@ -6,7 +6,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/select";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import { DatePicker } from "@/components/date-picker";
+import { AmountInput } from "@/components/amount-input";
+import { convertAmountToMiliunits } from "@/lib/utils";
 import { insertTransactionsSchema } from "@/db/schema";
 
 import {
@@ -61,8 +64,9 @@ export const TransactionForm = ({
   });
 
   const handleSubmit = (values: FormValues) => {
-    console.log({ values });
-    //onSubmit(values);
+    const amount = parseFloat(values.amount);
+    const amountInMiliunits = convertAmountToMiliunits(amount);
+    onSubmit({ ...values, amount: amountInMiliunits });
   };
 
   const handleDelete = () => {
@@ -135,13 +139,50 @@ export const TransactionForm = ({
             <FormItem>
               <FormLabel>Payee</FormLabel>
               <FormControl>
-                <Input />
+                <Input
+                  disabled={disabled}
+                  placeholder="Add a Payee"
+                  {...field}
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+        <FormField
+          name="amount"
+          control={form.control}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Amount</FormLabel>
+              <FormControl>
+                <AmountInput
+                  {...field}
+                  disabled={disabled}
+                  placeholder="0.00"
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+        <FormField
+          name="notes"
+          control={form.control}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Payee</FormLabel>
+              <FormControl>
+                <Textarea
+                  {...field}
+                  value={field.value ?? ""}
+                  disabled={disabled}
+                  placeholder="Optonal notes"
+                />
               </FormControl>
             </FormItem>
           )}
         />
         <Button className="w-full" disabled={disabled}>
-          {id ? "Save changes" : "Create account"}
+          {id ? "Save changes" : "Create transaction"}
         </Button>
         {!!id && (
           <Button
@@ -152,7 +193,7 @@ export const TransactionForm = ({
             onClick={handleDelete}
           >
             <Trash className="size-4 mr-2" />
-            Delete account
+            Delete transaction
           </Button>
         )}
       </form>
