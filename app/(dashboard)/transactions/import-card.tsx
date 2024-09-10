@@ -2,6 +2,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
 import { useState } from "react";
+import { format, parse } from "date-fns";
+import { convertAmountToMiliunits } from "@/lib/utils";
 
 import { ImportTable } from "./import-table";
 
@@ -21,7 +23,7 @@ type Props = {
 };
 
 export const ImportCard = ({ data, onCancel, onSubmit }: Props) => {
-  const [SelectedColumns, setSelectedColumns] = useState<SelectedColumnState>(
+  const [selectedColumns, setSelectedColumns] = useState<SelectedColumnState>(
     {}
   );
   const headers = data[0];
@@ -46,7 +48,46 @@ export const ImportCard = ({ data, onCancel, onSubmit }: Props) => {
     });
   };
 
-  const progress = Object.values(SelectedColumns).filter(Boolean).length;
+  const progress = Object.values(selectedColumns).filter(Boolean).length;
+
+  const handleContinue = () => {
+    const getColumnIndex = (column: string) => {
+      return column.split("_")[1];
+    };
+
+    const mappedData = {
+      headers: headers.map((_header, index) => {
+        const columnIndex = getColumnIndex(`column_${index}`);
+        return selectedColumns[`column_${columnIndex}`] || null;
+      }),
+      body: body
+        .map((row) => {
+          const transformedRow = row.map((cell, index) => {
+            const columnIndex = getColumnIndex(`column_${index}`);
+            return selectedColumns[`column_${columnIndex}`] ? cell : null;
+          });
+          return transformedRow.every((item) => item === null)
+            ? []
+            : transformedRow;
+        })
+        .filter((row) => row.length > 0),
+    };
+    const arrayOfData = mappedData.body.map((row) => {
+      return row.reduce((acc: any, cell, index) => {
+        const header = mappedData.headers[index];
+        if (header !== null) {
+          acc[header] = cell;
+        }
+        return acc;
+      }, {});
+    });
+    const formattedData = arrayOfData.map((item) => ({
+      ...item,
+      amount: convertAmountToMiliunits(parseFloat(item.amount)),
+      date: format(parse(item.date, dateFormat, new Date()), outputFormat),
+    }));
+    onSubmit(formattedData);
+  };
 
   return (
     <div className="max-w-screen-2xl mx-auto w-full pb-10 -mt-24">
@@ -62,6 +103,7 @@ export const ImportCard = ({ data, onCancel, onSubmit }: Props) => {
             <Button
               className="w-full lg:w-auto"
               size="sm"
+              onClick={handleContinue}
               disabled={progress < requiredOptions.length}
             >
               Continue ({progress}/{requiredOptions.length})
@@ -72,7 +114,7 @@ export const ImportCard = ({ data, onCancel, onSubmit }: Props) => {
           <ImportTable
             headers={headers}
             body={body}
-            selectedColumns={SelectedColumns}
+            selectedColumns={selectedColumns}
             onTableHeadSelectChange={onTableHeadSelectChange}
           />
         </CardContent>
