@@ -138,7 +138,14 @@ const app = new Hono()
   .post(
     "/bulk-create",
     clerkMiddleware(),
-    zValidator("json", z.array(insertTransactionsSchema.omit({ id: true }))),
+    zValidator(
+      "json",
+      z.array(
+        insertTransactionsSchema.omit({
+          id: true,
+        })
+      )
+    ),
     async (c) => {
       const auth = getAuth(c);
       const values = c.req.valid("json");
@@ -149,7 +156,12 @@ const app = new Hono()
 
       const data = await db
         .insert(transactions)
-        .values(values.map((value) => ({ id: createId(), ...value })))
+        .values(
+          values.map((value) => ({
+            id: createId(),
+            ...value,
+          }))
+        )
         .returning();
 
       return c.json({ data });
