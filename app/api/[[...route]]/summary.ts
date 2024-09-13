@@ -6,7 +6,7 @@ import { subDays, parse, differenceInDays } from "date-fns";
 import { db } from "@/db/drizzle";
 import { and, desc, eq, gte, lt, lte, sql, sum } from "drizzle-orm";
 import { accounts, categories, transactions } from "@/db/schema";
-import { CalculatePercentageChange, fillMissingDays } from "@/lib/utils";
+import { calculatePercentageChange, fillMissingDays } from "@/lib/utils";
 
 const app = new Hono().get(
   "/",
@@ -80,17 +80,17 @@ const app = new Hono().get(
       lastPeriodEnd
     );
 
-    const incomeChange = CalculatePercentageChange(
+    const incomeChange = calculatePercentageChange(
       currentPeriod.income,
       lastPeriod.income
     );
 
-    const expensesChange = CalculatePercentageChange(
+    const expensesChange = calculatePercentageChange(
       currentPeriod.expenses,
       lastPeriod.expenses
     );
 
-    const remainingChange = CalculatePercentageChange(
+    const remainingChange = calculatePercentageChange(
       currentPeriod.remaining,
       lastPeriod.remaining
     );

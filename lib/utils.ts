@@ -22,7 +22,7 @@ export function formatCurrency(value: number) {
   }).format(value);
 }
 
-export function CalculatePercentageChange(current: number, previous: number) {
+export function calculatePercentageChange(current: number, previous: number) {
   if (previous === 0) {
     return previous === current ? 0 : 100;
   }
