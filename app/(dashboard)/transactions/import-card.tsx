@@ -72,6 +72,7 @@ export const ImportCard = ({ data, onCancel, onSubmit }: Props) => {
         })
         .filter((row) => row.length > 0),
     };
+
     const arrayOfData = mappedData.body.map((row) => {
       return row.reduce((acc: any, cell, index) => {
         const header = mappedData.headers[index];
@@ -81,6 +82,7 @@ export const ImportCard = ({ data, onCancel, onSubmit }: Props) => {
         return acc;
       }, {});
     });
+
     const formattedData = arrayOfData.map((item) => ({
       ...item,
       amount: convertAmountToMiliunits(parseFloat(item.amount)),
